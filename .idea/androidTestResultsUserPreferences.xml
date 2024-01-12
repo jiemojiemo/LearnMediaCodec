@@ -3,6 +3,22 @@
   <component name="AndroidTestResultsUserPreferences">
     <option name="androidTestResultsTableState">
       <map>
+        <entry key="-2078699338">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="A7JC9X1B08G00565" value="120" />
+                  <entry key="AKRSVB1715006443" value="120" />
+                  <entry key="Duration" value="90" />
+                  <entry key="HONOR&#10; KOZ-AL40" value="120" />
+                  <entry key="HONOR&#10; NTH-AN00" value="120" />
+                  <entry key="Tests" value="360" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
         <entry key="-1039344187">
           <value>
             <AndroidTestResultsTableState>
@@ -64,6 +80,48 @@
             </AndroidTestResultsTableState>
           </value>
         </entry>
+        <entry key="227188029">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="AKRSVB1715006443" value="120" />
+                  <entry key="Duration" value="90" />
+                  <entry key="HONOR&#10; NTH-AN00" value="120" />
+                  <entry key="Tests" value="360" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="330611137">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="3EP7N19219002044" value="120" />
+                  <entry key="Duration" value="90" />
+                  <entry key="HUAWEI&#10; LYA-AL00" value="120" />
+                  <entry key="Tests" value="360" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="839839000">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="A7JC9X1B08G00565" value="120" />
+                  <entry key="Duration" value="90" />
+                  <entry key="HONOR&#10; KOZ-AL40" value="120" />
+                  <entry key="Tests" value="360" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
         <entry key="1089429082">
           <value>
             <AndroidTestResultsTableState>
@@ -86,6 +144,24 @@
                   <entry key="3EP7N19219002044" value="120" />
                   <entry key="Duration" value="90" />
                   <entry key="HUAWEI" value="120" />
+                  <entry key="HUAWEI&#10; LYA-AL00" value="120" />
+                  <entry key="Tests" value="360" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="1992667117">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="3EP7N19219002044" value="120" />
+                  <entry key="A7JC9X1B08G00565" value="120" />
+                  <entry key="AKRSVB1715006443" value="120" />
+                  <entry key="Duration" value="90" />
+                  <entry key="HONOR&#10; KOZ-AL40" value="120" />
+                  <entry key="HONOR&#10; NTH-AN00" value="120" />
                   <entry key="HUAWEI&#10; LYA-AL00" value="120" />
                   <entry key="Tests" value="360" />
                 </map>
