@@ -1,5 +1,6 @@
 package com.example.learnmediacodec
 
+import android.content.Intent
 import android.media.MediaCodecList
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -8,19 +9,14 @@ import android.widget.Button
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
-    private val TAG = "MainActivity"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val btn = findViewById<Button>(R.id.btn)
+        val btn = findViewById<Button>(R.id.detect_codec_infos)
         btn.setOnClickListener {
-            val RegularCodes = MediaCodecList(MediaCodecList.REGULAR_CODECS)
-            val CodecInfos = RegularCodes.codecInfos
-            val codecJsonStr = MediaClassJsonUtils.toJsonArray(CodecInfos).toString()
-            val cacheFile = File(externalCacheDir, "codec_infos.json")
-            Log.d(TAG, "codec info json file: ${cacheFile.absolutePath}")
-            cacheFile.writeText(codecJsonStr)
+            val intent = Intent(this, DetectCodecInfosActivity::class.java)
+            startActivity(intent)
         }
     }
 }
