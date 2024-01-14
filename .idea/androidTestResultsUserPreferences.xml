@@ -3,6 +3,20 @@
   <component name="AndroidTestResultsUserPreferences">
     <option name="androidTestResultsTableState">
       <map>
+        <entry key="-2114515607">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="AKRSVB1715006443" value="120" />
+                  <entry key="Duration" value="90" />
+                  <entry key="HONOR&#10; NTH-AN00" value="120" />
+                  <entry key="Tests" value="360" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
         <entry key="-2078699338">
           <value>
             <AndroidTestResultsTableState>
@@ -58,6 +72,20 @@
                   <entry key="3EP7N19219002044" value="120" />
                   <entry key="Duration" value="90" />
                   <entry key="HUAWEI&#10; LYA-AL00" value="120" />
+                  <entry key="Tests" value="360" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="-478723470">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="AKRSVB1715006443" value="120" />
+                  <entry key="Duration" value="90" />
+                  <entry key="HONOR&#10; NTH-AN00" value="120" />
                   <entry key="Tests" value="360" />
                 </map>
               </option>
@@ -145,6 +173,20 @@
                   <entry key="Duration" value="90" />
                   <entry key="HUAWEI" value="120" />
                   <entry key="HUAWEI&#10; LYA-AL00" value="120" />
+                  <entry key="Tests" value="360" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="1768399796">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="AKRSVB1715006443" value="120" />
+                  <entry key="Duration" value="90" />
+                  <entry key="HONOR&#10; NTH-AN00" value="120" />
                   <entry key="Tests" value="360" />
                 </map>
               </option>
