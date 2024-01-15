@@ -15,7 +15,7 @@
             android:name=".DetectCodecInfosActivity"
             android:exported="false" />
         <activity
-            android:name=".DecodeToBitmapActivity"
+            android:name=".DecodeUsingBuffersActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

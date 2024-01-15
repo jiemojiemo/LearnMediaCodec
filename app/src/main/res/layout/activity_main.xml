@@ -6,14 +6,24 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/detect_codec_infos"
-        android:text="detect codec infos"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btn_detect_codec_infos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="detect codec infos" />
+
+        <Button
+            android:id="@+id/btn_decode_to_bitmap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Decode to bitmap" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
