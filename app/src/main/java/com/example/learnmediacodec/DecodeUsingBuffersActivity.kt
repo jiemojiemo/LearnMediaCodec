@@ -20,6 +20,7 @@ class DecodeUsingBuffersActivity : AppCompatActivity() {
         imageView = findViewById(R.id.imageview_decode_to_bitmap)
         val button = findViewById<android.widget.Button>(R.id.btn_start_decoding)
         button.setOnClickListener {
+            // start a new thread for decoding so that we don't block the main thread
             Thread{
               decodeToBitmap()
             }.start()
@@ -60,6 +61,7 @@ class DecodeUsingBuffersActivity : AppCompatActivity() {
             }
 
             // get codec input buffer and fill it with data from extractor
+            // timeoutUs is -1L means wait forever
             val inputBufferId = codec.dequeueInputBuffer(-1L)
             if(inputBufferId >= 0){
                 if(inputDone){
@@ -71,17 +73,23 @@ class DecodeUsingBuffersActivity : AppCompatActivity() {
                 }
             }
 
+            // get output buffer from codec and render it to image view
+            // NOTE! dequeueOutputBuffer with -1L is will stuck here,  so wait 10ms here
             val outputBufferId = codec.dequeueOutputBuffer(bufferInfo, timeoutUs)
             if(outputBufferId >= 0){
                 if (bufferInfo.flags and BUFFER_FLAG_END_OF_STREAM != 0) {
                     outputDone = true
                 }
                 if(bufferInfo.size > 0){
+                    // get output image from codec, is a YUV image
                     val outputImage = codec.getOutputImage(outputBufferId)
+                    // convert YUV image to bitmap so that we can render it to image view
                     val bitmap = yuvImage2Bitmap(outputImage!!)
+                    // post to main thread to update image view
                     imageView.post{
                         imageView.setImageBitmap(bitmap)
                     }
+                    // remember to release output buffer after rendering
                     codec.releaseOutputBuffer(outputBufferId, false)
                     // sleep 30ms to simulate 30fps
                     Thread.sleep(30)
@@ -116,19 +124,6 @@ class DecodeUsingBuffersActivity : AppCompatActivity() {
         yuvImage.compressToJpeg(Rect(0, 0, yuvImage.width, yuvImage.height), 100, out)
         val imageBytes = out.toByteArray()
         val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-        return bitmap
-    }
-
-    private fun imageToBitmap(image: Image): Bitmap {
-        val buffer = image.planes[0].buffer
-        val bytes = ByteArray(buffer.capacity())
-        buffer.get(bytes)
-        val yuvImage = YuvImage(bytes, image.format, image.width, image.height, null)
-
-        val outputStream = ByteArrayOutputStream()
-        yuvImage.compressToJpeg(Rect(0, 0, image.width, image.height), 100, outputStream)
-        val jpegData = outputStream.toByteArray()
-        val bitmap = BitmapFactory.decodeByteArray(jpegData, 0, jpegData.size)
         return bitmap
     }
 
