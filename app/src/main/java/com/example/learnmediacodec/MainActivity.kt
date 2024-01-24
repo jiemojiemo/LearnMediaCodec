@@ -19,5 +19,10 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, DecodeUsingBuffersActivity::class.java)
             startActivity(intent)
         }
+
+        findViewById<Button>(R.id.btn_decode_to_surface).setOnClickListener{
+            val intent = Intent(this, DecodeUsingSurfaceActivity::class.java)
+            startActivity(intent)
+        }
     }
 }

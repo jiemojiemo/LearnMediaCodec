@@ -24,6 +24,12 @@
             android:layout_height="wrap_content"
             android:text="Decode to bitmap" />
 
+        <Button
+            android:id="@+id/btn_decode_to_surface"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Decode to surface" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

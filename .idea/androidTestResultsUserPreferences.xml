@@ -78,6 +78,21 @@
             </AndroidTestResultsTableState>
           </value>
         </entry>
+        <entry key="-682532017">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="AKRSVB1715006443" value="120" />
+                  <entry key="Duration" value="90" />
+                  <entry key="HONOR&#10; NTH-AN00" value="120" />
+                  <entry key="HUAWEI&#10; LYA-AL00" value="120" />
+                  <entry key="Tests" value="360" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
         <entry key="-538488010">
           <value>
             <AndroidTestResultsTableState>
