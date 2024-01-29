@@ -7,6 +7,7 @@ import android.media.MediaExtractor
 import android.media.MediaFormat
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -14,9 +15,10 @@ import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicBoolean
 
 class DecodeUsingSurfaceActivity : AppCompatActivity() {
+    private val TAG = "DecodeUsingSurface"
     private var stopDecoding = false
     private var thread0: Thread? = null
-
+    private var startTime = 0L
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_decode_using_surface)
@@ -41,6 +43,7 @@ class DecodeUsingSurfaceActivity : AppCompatActivity() {
                     decodeToSurfaceAsync(holder.surface) // or decodeToSurface(holder.surface)
                 }
                 thread0?.start()
+                startTime = System.nanoTime()
             }
 
             override fun surfaceDestroyed(holder: SurfaceHolder) {
@@ -117,9 +120,8 @@ class DecodeUsingSurfaceActivity : AppCompatActivity() {
                     outputEnd = true
                 }
                 if (bufferInfo.size > 0) {
-                    codec.releaseOutputBuffer(outputBufferId, true)
-                    // sleep 30ms to simulate 30fps
-                    Thread.sleep(30)
+                    val pts = bufferInfo.presentationTimeUs * 1000L + startTime
+                    codec.releaseOutputBuffer(outputBufferId, pts)
                 }
             }
 
@@ -185,11 +187,10 @@ class DecodeUsingSurfaceActivity : AppCompatActivity() {
                 if (info.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
                     outputEnd.set(true)
                 }
-
                 if(info.size > 0){
                     // render the decoded frame
-                    codec.releaseOutputBuffer(outputBufferId, true)
-                    Thread.sleep(30)
+                    val pts = info.presentationTimeUs * 1000L + startTime
+                    codec.releaseOutputBuffer(outputBufferId, pts)
                 }
             }
 
