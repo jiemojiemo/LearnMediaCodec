@@ -24,5 +24,10 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, DecodeUsingSurfaceActivity::class.java)
             startActivity(intent)
         }
+
+        findViewById<Button>(R.id.btn_encode_bitmap).setOnClickListener{
+            val intent = Intent(this, EncodeUsingBuffersActivity::class.java)
+            startActivity(intent)
+        }
     }
 }

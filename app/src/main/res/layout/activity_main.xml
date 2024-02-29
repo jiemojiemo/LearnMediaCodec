@@ -30,6 +30,12 @@
             android:layout_height="wrap_content"
             android:text="Decode to surface" />
 
+        <Button
+            android:id="@+id/btn_encode_bitmap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Decode bitmap to video" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
