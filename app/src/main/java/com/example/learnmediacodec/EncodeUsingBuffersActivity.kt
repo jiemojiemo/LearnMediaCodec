@@ -28,12 +28,12 @@ class EncodeUsingBuffersActivity : AppCompatActivity() {
         val btnStartEncodingAsync = findViewById<android.widget.Button>(R.id.btn_start_encoding_async)
         btnStartEncodingAsync.setOnClickListener {
             Thread {
-                encodingAsync()
+                encodeUsingBuffersAsync()
             }.start()
         }
     }
 
-    private fun encodingAsync(){
+    private fun encodeUsingBuffersAsync(){
         // create encoder
         val mimeType = MediaFormat.MIMETYPE_VIDEO_AVC
         val format = MediaFormat.createVideoFormat(mimeType, mWidth, mHeight)

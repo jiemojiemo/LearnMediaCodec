@@ -31,10 +31,16 @@
             android:text="Decode to surface" />
 
         <Button
-            android:id="@+id/btn_encode_bitmap"
+            android:id="@+id/btn_encode_using_buffers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Decode bitmap to video" />
+            android:text="Encode using buffers" />
+
+        <Button
+            android:id="@+id/btn_encode_using_surface"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Encode using surface" />
 
     </LinearLayout>
 
