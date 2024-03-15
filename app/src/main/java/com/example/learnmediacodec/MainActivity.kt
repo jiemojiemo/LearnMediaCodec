@@ -34,5 +34,10 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, EncodeUsingSurfaceActivity::class.java)
             startActivity(intent)
         }
+
+        findViewById<Button>(R.id.btn_encode_using_egl_and_surface).setOnClickListener{
+            val intent = Intent(this, EncodeUsingEGLAndSurfaceActivity::class.java)
+            startActivity(intent)
+        }
     }
 }
