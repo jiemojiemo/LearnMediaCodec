@@ -74,6 +74,7 @@ class EncodeUsingBuffersActivity : AppCompatActivity() {
                 {
                     Log.d(TAG, "encoder output eos")
                     outputEnd.set(true)
+                    info.size = 0
                 }
 
                 // got encoded frame, write it to muxer
@@ -107,8 +108,6 @@ class EncodeUsingBuffersActivity : AppCompatActivity() {
         format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL)
         Log.d(TAG, "format: $format")
         encoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
-
-        // set callback
 
         // create muxer
         val outputDir = externalCacheDir
