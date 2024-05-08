@@ -48,6 +48,12 @@
             android:layout_height="wrap_content"
             android:text="Encode using EGL and surface" />
 
+        <Button
+            android:id="@+id/btn_decode_to_texture_oes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Decode To Texture EOS" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
