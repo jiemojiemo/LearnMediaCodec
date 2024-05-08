@@ -1,6 +1,7 @@
 package com.example.learnmediacodec
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
 import android.media.MediaCodec
 import android.media.MediaCodecList
@@ -14,7 +15,10 @@ import android.util.Log
 import android.view.Surface
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import java.io.File
+import java.io.FileOutputStream
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.util.concurrent.atomic.AtomicBoolean
 
 class DecodeToTextureOESActivity : AppCompatActivity(), SurfaceTexture.OnFrameAvailableListener {
@@ -39,8 +43,8 @@ class DecodeToTextureOESActivity : AppCompatActivity(), SurfaceTexture.OnFrameAv
     }
 
     private fun decodeToSurfaceAsync() {
-        val width = 1280
-        val height = 1080
+        val width = 720
+        val height = 1280
         mEGLHelper.setupEGL(width, height)
         mEGLHelper.makeCurrent()
         count = 0
@@ -76,6 +80,8 @@ class DecodeToTextureOESActivity : AppCompatActivity(), SurfaceTexture.OnFrameAv
 
         thread = HandlerThread("FrameHandlerThread")
         thread!!.start()
+
+//        mSurfaceTexture!!.setOnFrameAvailableListener(this)
 
         mSurfaceTexture!!.setOnFrameAvailableListener({
             synchronized(lock) {
@@ -149,11 +155,12 @@ class DecodeToTextureOESActivity : AppCompatActivity(), SurfaceTexture.OnFrameAv
                 if (info.size > 0) {
                     Log.i(TAG, "onOutputBufferAvailable")
                     codec.releaseOutputBuffer(outputBufferId, true)
-                    mEGLHelper.makeCurrent()
 
                     waitTillFrameAvailable()
+                    mEGLHelper.makeCurrent()
                     mSurfaceTexture!!.updateTexImage()
                     mSurfaceTexture!!.getTransformMatrix(FloatArray(16))
+                    saveTextureToImage(textureHandles[0], width, height, count)
                     count++
                 }
             }
@@ -179,12 +186,45 @@ class DecodeToTextureOESActivity : AppCompatActivity(), SurfaceTexture.OnFrameAv
         // wait for processing to complete
         while (!outputEnd.get() && count < 10) {
             Log.i(TAG, "count: $count")
-            Thread.sleep(1000)
+            Thread.sleep(10)
         }
 
         mediaExtractor.release()
         codec.stop()
         codec.release()
+    }
+
+    private fun saveTextureToImage(textureId: Int, width: Int, height: Int, count: Int) {
+        // 创建一个Bitmap来保存图像数据
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+
+        // 创建一个FrameBuffer，并将纹理绑定到FrameBuffer上
+        val frameBuffer = IntArray(1)
+        GLES20.glGenFramebuffers(1, frameBuffer, 0)
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffer[0])
+        GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId, 0)
+
+        // 创建一个buffer来保存从FrameBuffer中读取的像素数据
+        val buffer = ByteBuffer.allocateDirect(width * height * 4)
+        buffer.order(ByteOrder.LITTLE_ENDIAN)
+
+        // 从FrameBuffer中读取像素数据
+        GLES20.glReadPixels(0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, buffer)
+        buffer.rewind()
+
+        // 将buffer中的数据复制到Bitmap中
+        bitmap.copyPixelsFromBuffer(buffer)
+
+        // 解绑FrameBuffer
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0)
+        GLES20.glDeleteFramebuffers(1, frameBuffer, 0)
+
+        // 保存Bitmap到文件
+        val file = File(externalCacheDir, "texture_$count.png")
+        val fos = FileOutputStream(file)
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+        fos.flush()
+        fos.close()
     }
 
     @SuppressLint("WrongConstant")
@@ -234,6 +274,7 @@ class DecodeToTextureOESActivity : AppCompatActivity(), SurfaceTexture.OnFrameAv
     }
 
     private val lock = Object()
+
     @Volatile
     private var frameAvailable = false
     private fun waitTillFrameAvailable() {
