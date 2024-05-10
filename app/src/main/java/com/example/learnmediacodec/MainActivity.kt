@@ -44,5 +44,10 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, DecodeToTextureOESActivity::class.java)
             startActivity(intent)
         }
+
+        findViewById<Button>(R.id.btn_decode_to_texture_edit_play).setOnClickListener{
+            val intent = Intent(this, DecodeEditPlay::class.java)
+            startActivity(intent)
+        }
     }
 }

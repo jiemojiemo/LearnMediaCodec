@@ -54,6 +54,12 @@
             android:layout_height="wrap_content"
             android:text="Decode To Texture EOS" />
 
+        <Button
+            android:id="@+id/btn_decode_to_texture_edit_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Decode Edit Then Play" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

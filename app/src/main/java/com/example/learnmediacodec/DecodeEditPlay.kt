@@ -1,7 +1,6 @@
 package com.example.learnmediacodec
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
 import android.media.MediaCodec
 import android.media.MediaCodecList
@@ -9,94 +8,96 @@ import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.opengl.*
 import android.os.Bundle
-import android.os.Handler
-import android.os.HandlerThread
 import android.util.Log
 import android.view.Surface
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import java.io.File
-import java.io.FileOutputStream
 import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.microedition.khronos.opengles.GL10
 
-class DecodeToTextureOESActivity : AppCompatActivity(), SurfaceTexture.OnFrameAvailableListener {
-    private val TAG = "DecodeEditActivity"
-    private var mEGLHelper = EGLHelper()
-    private var mSurfaceTexture: SurfaceTexture? = null
-    private var mOutputSurface: Surface? = null
-    private var count = 0
-    private var thread: HandlerThread? = null
+class DecodeEditPlay : AppCompatActivity(), SurfaceTexture.OnFrameAvailableListener {
+    private val TAG = "DecodeEditPlay"
+    private var eglHelper: EGLHelper? = null
+    private var textureHandles = IntArray(1)
+    private val lock = Object()
+
+    @Volatile
+    private var frameAvailable = false
+
+    inner class MyGLSurfaceRender : GLSurfaceView.Renderer {
+        override fun onSurfaceCreated(
+            gl: GL10?,
+            config: javax.microedition.khronos.egl.EGLConfig?
+        ) {
+            // create texture on gl thread
+            GLES20.glGenTextures(1, textureHandles, 0)
+            checkGlError("glGenTextures")
+
+            // bind texture id to oes and config it
+            GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureHandles[0])
+            GLES20.glTexParameteri(
+                GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER,
+                GLES20.GL_NEAREST
+            )
+            GLES20.glTexParameteri(
+                GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER,
+                GLES20.GL_LINEAR
+            )
+            GLES20.glTexParameteri(
+                GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_S,
+                GLES20.GL_CLAMP_TO_EDGE
+            )
+            GLES20.glTexParameteri(
+                GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T,
+                GLES20.GL_CLAMP_TO_EDGE
+            )
+            checkGlError("init oes texture")
+            Log.d(TAG, "config oes texture")
+        }
+
+        override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+            Log.d(TAG, "onSurfaceChanged")
+        }
+
+        override fun onDrawFrame(gl: GL10?) {
+            Log.d(TAG, "onDrawFrame")
+        }
+    }
+
+    private var glRenderer = MyGLSurfaceRender()
+    private lateinit var glSurfaceView: GLSurfaceView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_decode_to_texture_oes)
+        setContentView(R.layout.activity_decode_edit_play)
+        Log.d(TAG, "onCreate")
 
-        val btn = findViewById<Button>(R.id.btn_start_decoding_to_texture_oes_async)
-        btn.setOnClickListener {
-            Thread {
-                decodeToSurfaceAsync()
-            }.start()
-        }
-
+        glSurfaceView = findViewById<GLSurfaceView>(R.id.glSurfaceView)
+        glSurfaceView.setEGLContextClientVersion(2)
+        glSurfaceView.setRenderer(glRenderer)
+        Log.d(TAG, "config glSurfaceView")
     }
 
-    private fun decodeToSurfaceAsync() {
-        val width = 720
-        val height = 1280
-        mEGLHelper.setupEGL(width, height)
-        mEGLHelper.makeCurrent()
-        count = 0
+    override fun onDestroy() {
+        super.onDestroy()
+        eglHelper?.release()
+    }
 
-        // allocate texture id
-        val numTexId = 1
-        val textureHandles = IntArray(numTexId)
-        GLES20.glGenTextures(numTexId, textureHandles, 0)
-        checkGlError("glGenTextures")
+    fun checkGlError(op: String) {
+        var error: Int
+        while (GLES20.glGetError().also { error = it } != GLES20.GL_NO_ERROR) {
+            Log.e(
+                TAG,
+                "$op: glError $error"
+            )
+            throw java.lang.RuntimeException("$op: glError $error")
+        }
+    }
 
-        // bind texture id to oes and config it
-        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureHandles[0])
-        GLES20.glTexParameteri(
-            GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER,
-            GLES20.GL_NEAREST
-        )
-        GLES20.glTexParameteri(
-            GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER,
-            GLES20.GL_LINEAR
-        )
-        GLES20.glTexParameteri(
-            GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_S,
-            GLES20.GL_CLAMP_TO_EDGE
-        )
-        GLES20.glTexParameteri(
-            GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T,
-            GLES20.GL_CLAMP_TO_EDGE
-        )
-        checkGlError("init oes texture")
-
-        // create SurfaceTexture with texture id
-        mSurfaceTexture = SurfaceTexture(textureHandles[0])
-
-        thread = HandlerThread("FrameHandlerThread")
-        thread!!.start()
-
-//        mSurfaceTexture!!.setOnFrameAvailableListener(this)
-
-        mSurfaceTexture!!.setOnFrameAvailableListener({
-            synchronized(lock) {
-
-                // New frame available before the last frame was process...we dropped some frames
-                if (frameAvailable)
-                    Log.d(TAG, "Frame available before the last frame was process...we dropped some frames")
-
-                frameAvailable = true
-                lock.notifyAll()
-            }
-        }, Handler(thread!!.looper))
-
-        // create Surface With SurfaceTexture
-        mOutputSurface = Surface(mSurfaceTexture)
+    private fun decodeSync() {
+        val mSurfaceTexture = SurfaceTexture(textureHandles[0])
+        mSurfaceTexture.setOnFrameAvailableListener(this)
+        val mOutputSurface = Surface(mSurfaceTexture)
 
         // create and configure media extractor
         val mediaExtractor = MediaExtractor()
@@ -155,12 +156,6 @@ class DecodeToTextureOESActivity : AppCompatActivity(), SurfaceTexture.OnFrameAv
                 if (info.size > 0) {
                     Log.i(TAG, "onOutputBufferAvailable")
                     codec.releaseOutputBuffer(outputBufferId, true)
-
-                    waitTillFrameAvailable()
-                    mEGLHelper.makeCurrent()
-                    mSurfaceTexture!!.updateTexImage()
-                    saveTextureToImage(textureHandles[0], width, height, count)
-                    count++
                 }
             }
 
@@ -176,54 +171,17 @@ class DecodeToTextureOESActivity : AppCompatActivity(), SurfaceTexture.OnFrameAv
         // configure with surface
         codec.configure(videoFormat, mOutputSurface, null, 0)
 
-        // release EGL context in this thread
-        mEGLHelper.releaseEGL()
-
         // start decoding
         codec.start()
 
         // wait for processing to complete
-        while (!outputEnd.get() && count < 10) {
-            Log.i(TAG, "count: $count")
+        while (!outputEnd.get()) {
             Thread.sleep(10)
         }
 
         mediaExtractor.release()
         codec.stop()
         codec.release()
-    }
-
-    private fun saveTextureToImage(textureId: Int, width: Int, height: Int, count: Int) {
-        // 创建一个Bitmap来保存图像数据
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-
-        // 创建一个FrameBuffer，并将纹理绑定到FrameBuffer上
-        val frameBuffer = IntArray(1)
-        GLES20.glGenFramebuffers(1, frameBuffer, 0)
-        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffer[0])
-        GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId, 0)
-
-        // 创建一个buffer来保存从FrameBuffer中读取的像素数据
-        val buffer = ByteBuffer.allocateDirect(width * height * 4)
-        buffer.order(ByteOrder.LITTLE_ENDIAN)
-
-        // 从FrameBuffer中读取像素数据
-        GLES20.glReadPixels(0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, buffer)
-        buffer.rewind()
-
-        // 将buffer中的数据复制到Bitmap中
-        bitmap.copyPixelsFromBuffer(buffer)
-
-        // 解绑FrameBuffer
-        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0)
-        GLES20.glDeleteFramebuffers(1, frameBuffer, 0)
-
-        // 保存Bitmap到文件
-        val file = File(externalCacheDir, "texture_$count.png")
-        val fos = FileOutputStream(file)
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
-        fos.flush()
-        fos.close()
     }
 
     @SuppressLint("WrongConstant")
@@ -245,25 +203,6 @@ class DecodeToTextureOESActivity : AppCompatActivity(), SurfaceTexture.OnFrameAv
         return false
     }
 
-
-    fun checkGlError(op: String) {
-        var error: Int
-        while (GLES20.glGetError().also { error = it } != GLES20.GL_NO_ERROR) {
-            Log.e(
-                TAG,
-                "$op: glError $error"
-            )
-            throw java.lang.RuntimeException("$op: glError $error")
-        }
-    }
-
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mOutputSurface!!.release()
-        mEGLHelper.release()
-    }
-
     override fun onFrameAvailable(surfaceTexture: SurfaceTexture?) {
         Log.d(TAG, "onFrameAvailable")
         synchronized(lock) {
@@ -272,10 +211,6 @@ class DecodeToTextureOESActivity : AppCompatActivity(), SurfaceTexture.OnFrameAv
         }
     }
 
-    private val lock = Object()
-
-    @Volatile
-    private var frameAvailable = false
     private fun waitTillFrameAvailable() {
         synchronized(lock) {
             while (!frameAvailable) {
@@ -347,7 +282,13 @@ class DecodeToTextureOESActivity : AppCompatActivity(), SurfaceTexture.OnFrameAv
                 EGL14.EGL_NONE
             )
             mEGLContext =
-                EGL14.eglCreateContext(mEGLDisplay, configs[0], EGL14.EGL_NO_CONTEXT, contextAttrs, 0)
+                EGL14.eglCreateContext(
+                    mEGLDisplay,
+                    configs[0],
+                    EGL14.EGL_NO_CONTEXT,
+                    contextAttrs,
+                    0
+                )
             if (mEGLContext == EGL14.EGL_NO_CONTEXT) {
                 getError()
                 throw RuntimeException("eglCreateContext failed")
@@ -437,4 +378,3 @@ class DecodeToTextureOESActivity : AppCompatActivity(), SurfaceTexture.OnFrameAv
         }
     }
 }
-
