@@ -60,6 +60,12 @@
             android:layout_height="wrap_content"
             android:text="Decode Edit Then Play" />
 
+        <Button
+            android:id="@+id/btn_decode_edit_encode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Decode Edit Then Encode" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

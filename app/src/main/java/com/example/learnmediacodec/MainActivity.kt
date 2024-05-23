@@ -49,5 +49,10 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, DecodeEditPlay::class.java)
             startActivity(intent)
         }
+
+        findViewById<Button>(R.id.btn_decode_edit_encode).setOnClickListener{
+            val intent = Intent(this, DecodeEditEncodeActivity::class.java)
+            startActivity(intent)
+        }
     }
 }

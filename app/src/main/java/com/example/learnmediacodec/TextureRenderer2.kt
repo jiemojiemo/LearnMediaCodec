@@ -1,7 +1,9 @@
 package com.example.learnmediacodec
 
+import android.opengl.EGL14
 import android.opengl.GLES11Ext
 import android.opengl.GLES20
+import android.util.Log
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -137,8 +139,15 @@ class TextureRenderer2 {
     }
 
     fun draw(viewportWidth: Int, viewportHeight: Int, texMatrix:FloatArray, mvpMatrix: FloatArray) {
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
+        checkGlError("before draw")
+        Log.d("DecodeEditEncodeActivity", "before draw")
+        if(EGL14.eglGetCurrentContext() == EGL14.EGL_NO_CONTEXT){
+            throw RuntimeException("no egl context")
+        }
         GLES20.glClearColor(0f, 0f, 0f, 0f)
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
+        checkGlError("glClear")
+        Log.d("DecodeEditEncodeActivity", "glClear")
 
         GLES20.glUseProgram(program)
 
@@ -157,5 +166,17 @@ class TextureRenderer2 {
         GLES20.glVertexAttribPointer(uvsHandle, 2, GLES20.GL_FLOAT, false, 4 * 5, 3 * 4)
 
         GLES20.glDrawElements(GLES20.GL_TRIANGLES, 6, GLES20.GL_UNSIGNED_INT, 0)
+        checkGlError("glDrawElements")
+    }
+
+    fun checkGlError(op: String) {
+        var error: Int
+        while (GLES20.glGetError().also { error = it } != GLES20.GL_NO_ERROR) {
+            Log.e(
+                "TextureRenderer2",
+                "$op: glError $error"
+            )
+            throw java.lang.RuntimeException("$op: glError $error")
+        }
     }
 }
