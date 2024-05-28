@@ -71,7 +71,7 @@ class DecodeEditEncodeActivity : AppCompatActivity() {
 
         val videoBitrate = 2000000
         val frameRate = 30
-        val iFrameInterval = 5
+        val iFrameInterval = 60
         outputFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, colorFormat)
         outputFormat.setInteger(MediaFormat.KEY_BIT_RATE, videoBitrate)
         outputFormat.setInteger(MediaFormat.KEY_FRAME_RATE, frameRate)
@@ -109,7 +109,8 @@ class DecodeEditEncodeActivity : AppCompatActivity() {
                         TAG,
                         "encoder output buffer: $index, size: ${info.size}, pts: ${info.presentationTimeUs}"
                     )
-                    codec.releaseOutputBuffer(index, false)
+                    codec.releaseOutputBuffer(index, info.presentationTimeUs * 1000)
+                    Log.d(TAG, "encoder release output buffer: $index")
                 }
             }
 
@@ -163,6 +164,15 @@ class DecodeEditEncodeActivity : AppCompatActivity() {
         val maxInputSize = inputVideoFormat.getInteger(MediaFormat.KEY_MAX_INPUT_SIZE)
         val inputBuffer = ByteBuffer.allocate(maxInputSize)
         val bufferInfo = MediaCodec.BufferInfo()
+        // Create the decoder on a different thread, in order to have the callbacks there.
+        // This makes sure that the blocking waiting and rendering in onOutputBufferAvailable
+        // won't block other callbacks (e.g. blocking encoder output callbacks), which
+        // would otherwise lead to the transcoding pipeline to lock up.
+
+        // Since API 23, we could just do setCallback(callback, mVideoDecoderHandler) instead
+        // of using a custom Handler and passing a message to create the MediaCodec there.
+        val videoDecoderHandlerThread = HandlerThread("DecoderThread")
+        videoDecoderHandlerThread.start()
         decoder.setCallback(object : MediaCodec.Callback() {
             override fun onInputBufferAvailable(codec: MediaCodec, inputBufferId: Int) {
                 Log.d(TAG, "decoder input buffer available: $inputBufferId")
@@ -231,10 +241,10 @@ class DecodeEditEncodeActivity : AppCompatActivity() {
             }
 
             override fun onOutputFormatChanged(codec: MediaCodec, format: MediaFormat) {
-                Log.d(TAG, "decoder output format changed: $format")
+                Log.d(TAG, "decoder output format changed: $format, input format:$inputVideoFormat")
             }
 
-        });
+        }, Handler(videoDecoderHandlerThread.looper))
 
         // config decoder
         decoder.configure(inputVideoFormat, outputSurface, null, 0)
